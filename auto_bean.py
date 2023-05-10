@@ -10,7 +10,7 @@ class Account:
         self.name = name
 
     def ancestors(self) -> List["Account"]:
-        if self.parent != None:
+        if self.parent is not None:
             return self.parent.ancestors() + [self.parent]
         return []
 

@@ -141,7 +141,7 @@ class InteractiveSimpleExpenseFactory:
                 if ret:
                     f.write(ret.as_str() + '\n\n')
                     self.__refresh_builder()
-        except:
+        except BaseException:
             print("warning: writing failed")
 
     def show(self):
