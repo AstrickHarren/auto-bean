@@ -35,7 +35,7 @@ class Account:
         return self.as_str()
 
     def __eq__(self, __value: object) -> bool:
-        return __value is not None and self.as_str() == __value.as_bean_str()
+        return __value is not None and self.as_str() == __value.as_str()
 
     def __hash__(self) -> int:
         return hash(self.as_str())
@@ -93,23 +93,72 @@ class Currency:
     def __init__(self, name: str) -> None:
         self.name = name
 
+    def as_str(self) -> str:
+        return self.name.upper()
+
+    def __str__(self) -> str:
+        return self.as_str()
+
 
 class Leg:
-    def __init__(self, acnt: Account, amnt: float) -> None:
+    def __init__(self, acnt: Account, amnt: float, crny: Currency) -> None:
         self.acnt = acnt
         self.amnt = amnt
+        self.crny = crny
+
+    def as_str(self) -> str:
+        return "    {:<57}{:>7} {}".format(
+            self.acnt.as_str(),
+            self.amnt,
+            self.crny.as_str()
+        )
+
+    def __str__(self) -> str:
+        return self.as_str()
+
+
+class Tag:
+    def __init__(self, name) -> None:
+        self.name = name
+
+    def __str__(self) -> str:
+        return "#" + self.name
+
+
+class ShareTag(Tag):
+    def __init__(self, share_with: str) -> None:
+        super().__init__("share-" + share_with)
 
 
 class Transaction:
-    def __init__(self, legs: List[Leg], date: datetime.date = datetime.date.today()) -> None:
+    def __init__(self,
+                 legs: List[Leg],
+                 payee: str = "",
+                 desc: str = "",
+                 date: datetime.date = datetime.date.today(),
+                 tags: List[Tag] = [],
+                 is_complete=True) -> None:
+
         self.date = date
+        self.is_complete = is_complete
         self.legs = legs
+        self.payee = payee
+        self.desc = desc
+        self.tags = tags
 
     def verify(self) -> bool:
         return sum(map(lambda leg: leg.amnt, self.legs)) == 0
 
+    def as_str(self) -> str:
+        date = self.date.strftime("%Y-%m-%d")
+        status = "*" if self.is_complete else "!"
 
-class Contact:
-    def __init__(self, name: str, lia_acnt: Account) -> None:
-        self.name = name
-        self.lib_acnt = lia_acnt
+        ret = f'{date} {status} "{self.payee}" "{self.desc}"'
+
+        for tag in self.tags:
+            ret += f' {str(tag)}'
+
+        for leg in self.legs:
+            ret += f'\n{leg.as_str()}'
+
+        return ret

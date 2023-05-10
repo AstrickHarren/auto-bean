@@ -13,26 +13,21 @@ class TestStringMethods(unittest.TestCase):
         self.life = auto_bean.Account("life", self.expense)
 
         self.dine = auto_bean.Account("dine", self.food)
-
-    def test_transaction_verify(self):
-        good_trans = auto_bean.Transaction(
+        self.usd = auto_bean.Currency("usd")
+        self.good_trans = auto_bean.Transaction(
             [
-                auto_bean.Leg(self.food, -100),
-                auto_bean.Leg(self.life, 100),
-            ]
+                auto_bean.Leg(self.food, -100, self.usd),
+                auto_bean.Leg(self.life, 100, self.usd),
+            ],
+            desc="sport clothes",
+            tags=[auto_bean.Tag("share-YYX")]
         )
-        bad_trans = auto_bean.Transaction([
-            auto_bean.Leg(self.food, -100),
-            auto_bean.Leg(self.life, 120),
+        self.bad_trans = auto_bean.Transaction([
+            auto_bean.Leg(self.food, -100, self.usd),
+            auto_bean.Leg(self.life, 120, self.usd),
         ])
-        self.assertTrue(good_trans.verify())
-        self.assertFalse(bad_trans.verify())
 
-        self.assertEqual(
-            self.dine.as_bean_str(),
-            "expense:food:dine"
-        )
-
+    def test_account(self):
         self.assertEqual(
             self.expense.root(),
             self.expense
@@ -43,6 +38,21 @@ class TestStringMethods(unittest.TestCase):
             self.expense
         )
 
+        self.assertEqual(
+            self.dine.as_str(),
+            "expense:food:dine"
+        )
+
+    def test_transaction_verify(self):
+        self.assertTrue(self.good_trans.verify())
+        self.assertFalse(self.bad_trans.verify())
+
+    def test_transaction_display(self):
+        print(self.good_trans.as_str())
+
 
 if __name__ == "__main__":
-    unittest.main()
+    # unittest.main()
+    test = TestStringMethods()
+    test.setUp()
+    test.test_transaction_display()
