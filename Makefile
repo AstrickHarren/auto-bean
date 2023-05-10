@@ -10,3 +10,5 @@ test:
 require:
 	python3.11 -m pip install $(ARGS)
 
+run:
+	python3.11 cli.py ./ignore/2023.bean

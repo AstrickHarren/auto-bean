@@ -1,6 +1,7 @@
 import datetime
 from enum import Enum
 from typing import *
+from typing import List
 
 
 class Account:
@@ -162,3 +163,32 @@ class Transaction:
             ret += f'\n{leg.as_str()}'
 
         return ret
+
+    def __str__(self) -> str:
+        return self.as_str()
+
+
+class SimpleExpense(Transaction):
+    def __init__(self, from_acnt: Account,
+                 expn_acnt: Account,
+                 amnt: float,
+                 crny: Currency,
+                 desc="", payee="",
+                 date=datetime.date.today(),
+                 shared_with=[]) -> None:
+        legs = [
+            Leg(expn_acnt, amnt, crny),
+            Leg(from_acnt, -amnt, crny)
+        ]
+
+        tags = list(
+            map(lambda x: Tag("share-" + x), shared_with)
+        )
+
+        super().__init__(
+            legs, payee, desc, date, tags
+        )
+
+
+USD = Currency("usd")
+CNY = Currency("cny")
