@@ -64,8 +64,13 @@ class SimpleExpenseBuilder:
         self._payee = payee
         return self
 
-    def with_shared(self, shared: str) -> Self:
-        self._shared_with.append(shared)
+    def with_shared(self, shared: auto_bean.Contact | None) -> Self:
+        if shared:
+            self._shared_with.append(shared.name)
+        return self
+
+    def without_shared(self) -> Self:
+        self._shared_with = []
         return self
 
     def with_amnt(self, amnt: float) -> Self:
@@ -127,7 +132,8 @@ class InteractiveSimpleExpenseFactory:
         self.builder = self.builder.with_amnt(util.extract_first_float(text))\
             .with_desc(text.strip())\
             .with_expn_acnt(self.__infer_account(text, AccountType.EXPENSE))\
-            .with_from_acnt(self.__infer_account(text, AccountType.ASSET))
+            .with_from_acnt(self.__infer_account(text, AccountType.ASSET))\
+            .with_shared(self.__infer_share(text))
 
     def __infer_account(self, text: str, typ: AccountType | None = None):
         choices = self.store.all_of_type(typ) if typ else self.store.all()
@@ -137,10 +143,22 @@ class InteractiveSimpleExpenseFactory:
         choices = self.store.contacts()
         return self.__classify(text, choices)
 
+    def __infer_share(self, text: str):
+        choices = self.store.contacts()
+        return self.__classify_with_other(text, choices)
+
     def __classify(self, text: str, choices):
         labels = {str(x): x for x in choices}
         ret = self.classifier(text, list(labels.keys()))
         return labels[ret['labels'][0]]
+
+    def __classify_with_other(self, text: str, choices, threshold=.7):
+        labels = {str(x): x for x in choices}
+        ret = self.classifier(text, list(labels.keys()) + ['other'])
+        ret = ret['labels'][0] if ret['scores'][0] > threshold else None
+        if ret != 'other' and ret is not None:
+            return labels[ret]
+        return None
 
     def __refresh_builder(self):
         self.builder = SimpleExpenseBuilder()
