@@ -55,9 +55,11 @@ class AccountStore:
         self._acnts = set(acnts)
         self._roots = set()
         self._leafs = set()
+        self._contact = set()
 
         self._process_roots()
         self._process_leafs()
+        self._process_contacts(self.find_acnt("Share"))
 
     def all(self):
         return self._acnts
@@ -75,8 +77,16 @@ class AccountStore:
                 ret.add(other)
         return ret.intersection(self.leafs())
 
+    def find_acnt(self, name: str):
+        for acnt in self.all():
+            if acnt.name == name:
+                return acnt
+
     def all_of_type(self, type: AccountType):
         return self.leafs_of(type.value)
+
+    def contacts(self):
+        return self._contact
 
     def _process_roots(self):
         for acnt in self._acnts:
@@ -88,6 +98,10 @@ class AccountStore:
             for acnt in acnt.ancestors():
                 non_leafs.add(acnt)
         self._leafs = self._acnts.difference(non_leafs)
+
+    def _process_contacts(self, contact_root: Account):
+        contacts = self.leafs_of(contact_root)
+        self._contact = set(map(lambda c: Contact(c.name, c), contacts))
 
 
 class Currency:
@@ -188,6 +202,15 @@ class SimpleExpense(Transaction):
         super().__init__(
             legs, payee, desc, date, tags
         )
+
+
+class Contact:
+    def __init__(self, name, acnt) -> None:
+        self.name = name
+        self.acnt = acnt
+
+    def __str__(self) -> str:
+        return self.name
 
 
 USD = Currency("usd")

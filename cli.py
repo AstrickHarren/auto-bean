@@ -92,6 +92,7 @@ class InteractiveSimpleExpenseFactory:
         self.CHANGE_AMNT = "amount"
         self.CHANGE_PAYEE = "payee"
         self.CHANGE_DESC = "desc"
+        self.CHANGE_SHARE = "share"
         self.WRITE = "write"
         self.CHANGE = "change"
 
@@ -118,6 +119,10 @@ class InteractiveSimpleExpenseFactory:
                 acnt = self.__infer_account(arg)
                 self.builder = self.builder.with_from_acnt(acnt)
 
+            case self.CHANGE_SHARE:
+                contact = self.__infer_contact(arg)
+                self.builder = self.builder.with_shared(contact.name)
+
     def _parse_english(self, text: str):
         self.builder = self.builder.with_amnt(util.extract_first_float(text))\
             .with_desc(text.strip())\
@@ -126,8 +131,14 @@ class InteractiveSimpleExpenseFactory:
 
     def __infer_account(self, text: str, typ: AccountType | None = None):
         choices = self.store.all_of_type(typ) if typ else self.store.all()
+        return self.__classify(text, choices)
 
-        labels = {x.as_str(): x for x in choices}
+    def __infer_contact(self, text: str):
+        choices = self.store.contacts()
+        return self.__classify(text, choices)
+
+    def __classify(self, text: str, choices):
+        labels = {str(x): x for x in choices}
         ret = self.classifier(text, list(labels.keys()))
         return labels[ret['labels'][0]]
 
