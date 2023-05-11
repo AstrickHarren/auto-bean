@@ -30,7 +30,22 @@ python cli.py <PATH TO YOUR BEAN FILE>
 ```
 
 This may take several seconds on my local machine to load the language model
-before the it enters the interactive mode.
+before the it enters the interactive mode. If it the first time, it might as
+well download the AI model (see [dependencies](#dependencies)) in cache.
+
+## Dependencies
+I used [transformers](https://huggingface.co/docs/transformers) from huggingface and the [facebook model](https://huggingface.co/facebook/bart-large-mnli) for zero-shot
+classification. So you may need to
+
+1. install pytorch (or tensorflow) with pip
+    ```bash
+    # for torch
+    python -m pip install torch
+    ```
+2. install transformers
+    ```bash
+    python -m pip install transformers
+    ```
 
 ## Commands
 
