@@ -137,7 +137,7 @@ class InteractiveSimpleExpenseFactory:
 
     def __clean_desc(self, text: str):
         words = text.strip().split()
-        words = filter(lambda x: not x.isdigit(), words)
+        words = filter(lambda x: not x.replace('.', '', 1).isdigit(), words)
         return " ".join(words)
 
     def __infer_account(self, text: str, typ: AccountType | None = None):
