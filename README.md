@@ -56,6 +56,7 @@ cmd | description | example
 -|-|-
 any other english | leave to the AI for automatic creation of a new transaction | `eat out with Amy for 30.58 paid with cash`
 `change expense <Expense Type>` | change the expense type of the of the transaction, `Expense Type` can be any english, and the expense account is infered from all the accounts currently present in the beancount file| `change expense groceries`
+`change from <Account>` | change the other account of the transaction (the account where the expense amount comes from) | `change from cash`
 `change desc <Description>` | change the description of the transaction to exactly `Bob` | `change desc eat out`
 `change payee <Payee>` | change the payee of the transcation to exactly `Payee` | `change payee Bob`
 `change share <Contact>` | append a tag `#share-..` to the transaction, attempting to utilize the [beancount-share](https://github.com/Akuukis/beancount_share) plugin | `change share Amy`
