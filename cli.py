@@ -130,10 +130,15 @@ class InteractiveSimpleExpenseFactory:
 
     def _parse_english(self, text: str):
         self.builder = self.builder.with_amnt(util.extract_first_float(text))\
-            .with_desc(text.strip())\
+            .with_desc(self.__clean_desc(text))\
             .with_expn_acnt(self.__infer_account(text, AccountType.EXPENSE))\
             .with_from_acnt(self.__infer_account(text, AccountType.ASSET))\
             .with_shared(self.__infer_share(text))
+
+    def __clean_desc(self, text: str):
+        words = text.strip().split()
+        words = filter(lambda x: not x.isdigit(), words)
+        return " ".join(words)
 
     def __infer_account(self, text: str, typ: AccountType | None = None):
         choices = self.store.all_of_type(typ) if typ else self.store.all()
